@@ -33,7 +33,7 @@ class Wave_2D_solver():
     def set_inital(self): # Set inital condition for t = 0
         for i in Ix:
             for j in Iy:
-                u_n[i,j] = I(x[i-Ix[0],(y[j-Iy[0]])
+                u_n[i,j] = I(x[i-Ix[0],(y[j-Iy[0]]))
 
     def advance(self,step1 = False):
         """
