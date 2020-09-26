@@ -18,17 +18,10 @@ class TestClass():
 
         u_e = np.full((Nx+3,Ny+3),U)
         # solve and compare with analytical
-        solver = Wave_2D_solver(Lx,Ly,Nx,Ny,T,dt)
-        u, t = solver.solve(I,b,g,f,V)
+        solver = Wave_2D_solver(g,Lx,Ly,Nx,Ny,T,dt)
+        u, t = solver.solve(I,b,f,V)
 
         tol = 1E-12
         residual = np.subtract(u_e,u)
         print('\nMaximum error in computing a constant solution {:.3e}\n'.format(np.amax(residual)))
         assert pytest.approx(u_e, abs = tol) == u
-
-#    def test_convergence(self):
-        """
-        where an analytically exact solution exists
-        (truncation and round off error in numerical solution)
-        """
-#        return
