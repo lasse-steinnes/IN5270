@@ -13,31 +13,28 @@ class Wave_2D_solver():
         - If test_convergence, compute error and test convergence rates
             for a constant g
         """
-        self.test_convergence = test_convergence
         self.g = g
-        C = 1               # C <= 1: Stability criteria
-        if self.test_convergence == True:
-            Nt = int(round(T/dt))
-            self.t = np.linspace(0, Nt*dt, Nt+1)
-            self.dx = dt*np.sqrt(g(1,1))/float(C)
-            self.dy = dt*np.sqrt(g(1,1))/float(C)
-            self.Nx = int(round(Lx/self.dx))
-            self.Ny = int(round(Ly/self.dy))
-            self.x = np.linspace(0, Lx, self.Nx+1)
-            self.y = np.linspace(0, Ly, self.Ny+1)
-            self.Es = []                                      # initialize error
-            self.hs = []                                      # initialize h
-            self.dt = dt
+        #C = 0.5               # C <= 1: Stability criteria page 164
+        #if self.test_convergence == True:
+        #    self.dt = dt
+        #    self.Nt = int(round(T/self.dt))
+        #    self.t = np.linspace(0, self.Nt*self.dt, self.Nt+1)
+        #    self.dx = self.dt*np.sqrt(g(1,1))/float(C)
+        #    self.dy = self.dt*np.sqrt(g(1,1))/float(C)
+        #    self.Nx = int(round(Lx/self.dx))
+        #    self.Ny = int(round(Ly/self.dy))
+        #    self.x = np.linspace(0, self.Nx*self.dx, self.Nx+1)
+        #    self.y = np.linspace(0, self.Ny*self.dx , self.Ny+1)
 
-        else:
-            self.Nx, self.Ny = Nx, Ny                       # x,y physical points only
-            self.x = np.linspace(0,Lx,Nx+1);                # +1 because then we can use index Nx for last element
-            self.y = np.linspace(0,Ly,Ny+1);                # same here
-            self.dx = self.x[1] - self.x[0];
-            self.dy = self.y[1] - self.y[0];                # Spacing homogenous
-            Nt = int(round(T/float(dt)))                    # Integer number of time iterations
-            self.t = np.linspace(0,Nt*dt,Nt+1)              # time mesh
-            self.dt = dt
+        self.T = T; self.Lx = Lx; self.Ly = Ly
+        self.Nx, self.Ny = Nx, Ny                       # x,y physical points only
+        self.x = np.linspace(0,Lx,Nx+1);                # +1 because then we can use index Nx for last element
+        self.y = np.linspace(0,Ly,Ny+1);                # same here
+        self.dx = self.x[1] - self.x[0];
+        self.dy = self.y[1] - self.y[0];                # Spacing homogenous
+        Nt = int(round(T/float(dt)))                    # Integer number of time iterations
+        self.t = np.linspace(0,Nt*dt,Nt+1)              # time mesh
+        self.dt = dt
 
         # Initialize vectors (2 dimensional mesh [i,j]) using ghost cells i = -1,0 ... Nx+1 and so on
         self.u_nn = np.zeros((self.Nx+3,self.Ny+3))           # time n-1, so that t -dt
@@ -166,9 +163,13 @@ class Wave_2D_solver():
                 self.u_nn, self.u_n, self.u = self.u_n, self.u, self.u_nn  # Update time vectors
 
         else:
+            self.error = 0
             for self.n in self.It[1:-1]:
                 n = self.n
                 self.advance_b0(n,f,V)
+                self.residual = np.subtract(self.u_e(self.x,self.y,self.t[self.n]),self.u[1:-1,1:-1])
+                self.error = max(self.error,np.abs(self.residual.max()))
+                #print(self.error)
                 self.u_nn, self.u_n, self.u = self.u_n, self.u, self.u_nn  # Update time vectors
         return self.u[1:-1,1:-1], self.t
 
@@ -181,21 +182,27 @@ class Wave_2D_solver():
         to see if converge == 2 for finite difference method
         input u_e
         """
+        self.Es = []                                      # initialize error
+        self.hs = []
+        self.u_e = u_e
+
         for i in range(n_experiments):
+            self.error = 0
             self.solve(I,b,f,V)
             # calulate errors
-            self.error = 0                  # for n = 0
-            residual = np.subtract(u_e(self.x,self.y,self.t[self.n]),self.u[1:-1,1:-1]) # runs while solving
-            self.error = max(self.error,np.abs(residual.max()))                   # update error for each time step
             self.Es.append(self.error)
             self.hs.append(self.dt)
 
+            ### initialize correct in each case ###
             self.dt /= 2
+            self.initialize_convergence()
                                                          # half time step for nex simulation
         # now get convergence rate
         r = [np.log(self.Es[i]/self.Es[i-1])/np.log(self.hs[i]/self.hs[i-1]) \
             for i in range(1,n_experiments)]
-
+        print('E',self.Es)
+        print('r',r)
+        print('\nExpected converge rate: 2. tol: 0.2.')
         for i in range(n_experiments-1):
             if abs(r[i] - 2) < 0.2:
                 print('Expected convergence rate after experiment: {:d} , with h: {:.4e}'.format(i+1,self.hs[i]))
@@ -204,3 +211,25 @@ class Wave_2D_solver():
                 print('Not expected convergence rate after experiemnt: {:d}, with h: {:.4e}'.format(i+1,self.hs[i]))
 
         return r, self.Es, self.hs
+
+    def initialize_convergence(self):
+        C = 0.6
+        g, Lx, Ly = self.g, self.Lx, self.Ly
+        self.Nt = int(round(self.T/self.dt))
+        self.t = np.linspace(0, self.Nt*self.dt, self.Nt+1)
+        self.dx = self.dt*np.sqrt(g(1,1))/float(C)
+        self.dy = self.dt*np.sqrt(g(1,1))/float(C)
+        self.Nx = int(round(Lx/self.dx))
+        self.Ny = int(round(Ly/self.dy))
+        self.x = np.linspace(0, self.Nx*self.dx, self.Nx+1)
+        self.y = np.linspace(0, self.Ny*self.dx , self.Ny+1)
+
+        # Initialize vectors (2 dimensional mesh [i,j]) using ghost cells i = -1,0 ... Nx+1 and so on
+        self.u_nn = np.zeros((self.Nx+3,self.Ny+3))           # time n-1, so that t -dt
+        self.u_n = np.zeros((self.Nx+3,self.Ny+3))            # time n, so that
+        self.u = np.zeros((self.Nx+3,self.Ny+3))           # time n+1, so that t + dt
+
+        # Index sets, only iterates over INNER points
+        u_nn, u_n, u = self.u,self.u_n, self.u
+        self.Ix = range(1,u.shape[0]-1); self.Iy = range(1,u.shape[1]-1);
+        self.It = range(0,self.t.shape[0])

@@ -13,10 +13,10 @@ class TestClass():
         V = lambda x,y: 0
         g = lambda x,y: 1
 
-        dt = 0.1; b = 2/dt; T = 2; Nx = 100; Ny = 100;
-        Lx = 4; Ly = 4;
+        dt = 0.1; T = 2; Nx = 100; Ny = 100;
+        Lx = 4; Ly = 4;  b = 2/dt # or b = 0
 
-        u_e = np.full((Nx+3,Ny+3),U)
+        u_e = np.full((Nx+1,Ny+1),U)
         # solve and compare with analytical
         solver = Wave_2D_solver(g,Lx,Ly,Nx,Ny,T,dt)
         u, t = solver.solve(I,b,f,V)
