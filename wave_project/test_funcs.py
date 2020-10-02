@@ -18,7 +18,7 @@ class TestClass():
 
         u_e = np.full((Nx+1,Ny+1),U)
         # solve and compare with analytical
-        solver = Wave_2D_solver(g,Lx,Ly,Nx,Ny,T,dt)
+        solver = Wave_2D_solver(g,Lx,Ly,Nx,Ny,T,dt,'none')
         u, t = solver.solve(I,b,f,V)
 
         tol = 1E-12

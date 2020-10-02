@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from visualize import plot_u
 
 class Wave_2D_solver():
     """
@@ -7,24 +8,14 @@ class Wave_2D_solver():
     boundary conditions (BC's) for a square domain (0,Lx)x(0,Ly).
     The method used is a finite centered difference scheme.
     """
-    def __init__(self, g, Lx, Ly, Nx, Ny, T, dt, test_convergence = False):
+    def __init__(self, g, Lx, Ly, Nx, Ny, T, dt, do):
         """
         Initalizes parameters
         - If test_convergence, compute error and test convergence rates
             for a constant g
         """
+        self.do = do
         self.g = g
-        #C = 0.5               # C <= 1: Stability criteria page 164
-        #if self.test_convergence == True:
-        #    self.dt = dt
-        #    self.Nt = int(round(T/self.dt))
-        #    self.t = np.linspace(0, self.Nt*self.dt, self.Nt+1)
-        #    self.dx = self.dt*np.sqrt(g(1,1))/float(C)
-        #    self.dy = self.dt*np.sqrt(g(1,1))/float(C)
-        #    self.Nx = int(round(Lx/self.dx))
-        #    self.Ny = int(round(Ly/self.dy))
-        #    self.x = np.linspace(0, self.Nx*self.dx, self.Nx+1)
-        #    self.y = np.linspace(0, self.Ny*self.dx , self.Ny+1)
 
         self.T = T; self.Lx = Lx; self.Ly = Ly
         self.Nx, self.Ny = Nx, Ny                       # x,y physical points only
@@ -60,6 +51,9 @@ class Wave_2D_solver():
         j = Iy[0]; self.u_n[:,j-1] = self.u_n[:,j+1]         # y = 0
         j = Iy[-1]; self.u_n[:,j+1] = self.u_n[:,j-1]        # y = Ly
 
+        ## parameters for converge test initalized here for convenience
+        if not self.do == 'damped' and not self.do =='standing':
+            self.error = 0; self.residual = 0; self.u_e = lambda x,y,t: 0
 
     def var_coeff(self,x,y,i,j):
             g = self.g
@@ -98,7 +92,7 @@ class Wave_2D_solver():
         Advances the solver
         """
         Ix = self.Ix; x = self.y; Iy = self.Iy; y = self.y
-        t = self.t
+        t = self.t; g = self.g;
         # first step(t = 1), <-- u_t initial condition V
         if n==1:
             for i in Ix:
@@ -107,8 +101,8 @@ class Wave_2D_solver():
                     self.var_coeff(x,y,i,j)
                     g_ux_x = self.g_ux_x; gy_u_y = self.gy_u_y
 
-                    self.u[i,j] = 1/(2*b*self.dt)*(4*self.u_n[i,j] - 2*self.dt*V(x[ix],y[jy])*(b*self.dt-2)) \
-                            + (self.dt/b)*(g_ux_x + gy_u_y + f(x[ix],y[jy],t[n]))
+                    self.u[i,j] = 1/4*(4*self.u_n[i,j] - 2*self.dt*V(x[ix],y[jy])*(b*self.dt-2) \
+                            + (2*self.dt**2)*(g_ux_x + gy_u_y + f(x[ix],y[jy],t[n])))
         # All other times steps
         else:
             for i in Ix:
@@ -156,10 +150,20 @@ class Wave_2D_solver():
         g = self.g
         self.set_inital(I)
 
+        if self.do == 'plot':
+            fig = True
+        else:
+            fig = False
+
         if b != 0:
+            self.error = 0
             for self.n in self.It[1:-1]:
                 n = self.n
                 self.advance(n,b,f,V)
+                self.residual = np.subtract(self.u_e(self.x,self.y,self.t[self.n]),self.u[1:-1,1:-1])
+                self.error = max(self.error,np.abs(self.residual.max()))
+
+                plot_u(self.u, self.x,self.y, self.t,n,fig, save_plot = True)
                 self.u_nn, self.u_n, self.u = self.u_n, self.u, self.u_nn  # Update time vectors
 
         else:
@@ -169,7 +173,8 @@ class Wave_2D_solver():
                 self.advance_b0(n,f,V)
                 self.residual = np.subtract(self.u_e(self.x,self.y,self.t[self.n]),self.u[1:-1,1:-1])
                 self.error = max(self.error,np.abs(self.residual.max()))
-                #print(self.error)
+
+                plot_u(self.u, self.x,self.y, self.t,n,fig, save_plot = True)
                 self.u_nn, self.u_n, self.u = self.u_n, self.u, self.u_nn  # Update time vectors
         return self.u[1:-1,1:-1], self.t
 
@@ -185,7 +190,7 @@ class Wave_2D_solver():
         self.Es = []                                      # initialize error
         self.hs = []
         self.u_e = u_e
-
+        self.initialize_convergence()
         for i in range(n_experiments):
             self.error = 0
             self.solve(I,b,f,V)
@@ -196,33 +201,47 @@ class Wave_2D_solver():
             ### initialize correct in each case ###
             self.dt /= 2
             self.initialize_convergence()
-                                                         # half time step for nex simulation
+        print('E',self.Es)                                                 # half time step for next simulation
         # now get convergence rate
         r = [np.log(self.Es[i]/self.Es[i-1])/np.log(self.hs[i]/self.hs[i-1]) \
             for i in range(1,n_experiments)]
-        print('E',self.Es)
         print('r',r)
-        print('\nExpected converge rate: 2. tol: 0.2.')
+        print('\nExpected converge rate: 2. tol: 0.05')
         for i in range(n_experiments-1):
-            if abs(r[i] - 2) < 0.2:
+            if abs(r[i] - 2) < 0.05:
                 print('Expected convergence rate after experiment: {:d} , with h: {:.4e}'.format(i+1,self.hs[i]))
                 break
             else:
-                print('Not expected convergence rate after experiemnt: {:d}, with h: {:.4e}'.format(i+1,self.hs[i]))
+                print('Not expected convergence rate after experiment: {:d}, with h: {:.4e}'.format(i+1,self.hs[i]))
 
         return r, self.Es, self.hs
 
     def initialize_convergence(self):
-        C = 0.6
         g, Lx, Ly = self.g, self.Lx, self.Ly
+
+        if self.do == 'standing':
+            C = 0.6
+            c_max = np.sqrt(g(1,1))
+
+        elif self.do == 'damped':
+            beta =  1
+            C = float(0.3/beta)
+            x_mock, y_mock = np.linspace(0,Lx,100), np.linspace(0,Ly,100)
+            c_max = np.sqrt(np.max(g(x_mock,y_mock)))
+
         self.Nt = int(round(self.T/self.dt))
         self.t = np.linspace(0, self.Nt*self.dt, self.Nt+1)
-        self.dx = self.dt*np.sqrt(g(1,1))/float(C)
-        self.dy = self.dt*np.sqrt(g(1,1))/float(C)
+        self.dx = self.dt*c_max/C
+        self.dy = self.dt*c_max/C
         self.Nx = int(round(Lx/self.dx))
         self.Ny = int(round(Ly/self.dy))
         self.x = np.linspace(0, self.Nx*self.dx, self.Nx+1)
         self.y = np.linspace(0, self.Ny*self.dx , self.Ny+1)
+
+        # print stability criteria
+        print("stability criteria")
+
+        print('dt:',self.dt,'dx:',self.dx,'dy',self.dy,'dt less than',1/c_max*np.sqrt(1/self.dx**2 + 1/self.dy**2))
 
         # Initialize vectors (2 dimensional mesh [i,j]) using ghost cells i = -1,0 ... Nx+1 and so on
         self.u_nn = np.zeros((self.Nx+3,self.Ny+3))           # time n-1, so that t -dt
