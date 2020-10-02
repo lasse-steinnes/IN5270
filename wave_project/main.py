@@ -81,8 +81,8 @@ if do == 'converge_damped':
     u_e_t = simplify(diff(u_e,t))
     u_e_tt = simplify(diff(diff(u_e,t),t))
 
-    Vt = lambdify((x,y,t),u_e_t,'numpy') # modules = ['numpy']) # Maybe not need to lambdify this
-    It = lambdify((x,y,t),u_e,'numpy') #, modules = ['numpy'])
+    Vt = lambdify((x,y,t),u_e_t,'numpy')
+    It = lambdify((x,y,t),u_e,'numpy')
     fsym = simplify(u_e_tt + b*u_e_t - gu_x_x - gu_y_y)
 
     # define functions
