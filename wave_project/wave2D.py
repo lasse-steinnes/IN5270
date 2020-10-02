@@ -163,7 +163,7 @@ class Wave_2D_solver():
                 self.residual = np.subtract(self.u_e(self.x,self.y,self.t[self.n]),self.u[1:-1,1:-1])
                 self.error = max(self.error,np.abs(self.residual.max()))
 
-                plot_u(self.u, self.x,self.y, self.t,n,fig, save_plot = True)
+                plot_u(self.u[1:-1], self.x,self.y, self.t,n,fig, save_plot = True)
                 self.u_nn, self.u_n, self.u = self.u_n, self.u, self.u_nn  # Update time vectors
 
         else:
@@ -174,7 +174,7 @@ class Wave_2D_solver():
                 self.residual = np.subtract(self.u_e(self.x,self.y,self.t[self.n]),self.u[1:-1,1:-1])
                 self.error = max(self.error,np.abs(self.residual.max()))
 
-                plot_u(self.u, self.x,self.y, self.t,n,fig, save_plot = True)
+                plot_u(self.u[1:-1], self.x,self.y, self.t,n,fig, save_plot = True)
                 self.u_nn, self.u_n, self.u = self.u_n, self.u, self.u_nn  # Update time vectors
         return self.u[1:-1,1:-1], self.t
 

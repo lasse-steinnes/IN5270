@@ -16,9 +16,9 @@ def plot_u(u, x, y, t, n, do = False, save_plot = False):
         extent1 = (0, 20, 0, 20,-2, 2)
         s = mlab.surf(x , y, u,
                           colormap='Blues',
-                          warp_scale=5,extent=extent1)
+                          extent=extent1)
         mlab.axes(s, color=(.7, .7, .7), extent=extent1,
-                      ranges=(0, 10, 0, 10, -20, 20),
+                      ranges=(0, 10, 0, 10, -1, 1),
                       xlabel='', ylabel='', zlabel='',
                       x_axis_visibility=False,
                       z_axis_visibility=False)
@@ -37,4 +37,5 @@ def plot_u(u, x, y, t, n, do = False, save_plot = False):
         time.sleep(0) # pause between frames
         if save_plot:
             filename = 'tmp_%04d.png' % n
-            mlab.savefig(filename)  # time consuming!
+            mlab.savefig('./animations/'+filename)  # time consuming!
+        mlab.show()
