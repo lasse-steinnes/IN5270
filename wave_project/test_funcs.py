@@ -14,7 +14,7 @@ class TestClass():
         g = lambda x,y: 1
 
         dt = 0.1; T = 2; Nx = 100; Ny = 100;
-        Lx = 4; Ly = 4;  b = 2/dt # or b = 0
+        Lx = 4; Ly = 4;  b = 0
 
         u_e = np.full((Nx+1,Ny+1),U)
         # solve and compare with analytical

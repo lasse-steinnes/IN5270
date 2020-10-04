@@ -19,7 +19,7 @@ def I(x,y):
 def V(x,y):
     return x
 
-Nx = 100; Ny = 100; T = 3; dt = 0.1
+Nx = 100; Ny = 100; T = 3; dt = 0.05
 Lx = 10; Ly = 10; b = 0;
 
 
@@ -98,15 +98,16 @@ if do == 'converge_damped':
 
 if do == 'plotwaves':
     # Define parameters
-    b = 0;
+    b_drag = 0;
 
     B0 = 2; Ba = B0*0.30; Bs = Lx*0.3; Bmx = 0.5*Lx; Bmy = 0.5*Ly; b = 1.1;
     H0 = 3*B0; I0 = 0; Ia = 0.15*B0; g_a = 9.81;
 
     speeds = input('Choose subsea surface (smooth/steep/rectangle)')
+    ## Calculate velocities at each point
     if speeds == 'smooth':
         def g(x,y):
-            B = B0 + Ia*np.exp(-((x-Bmx)/Bs)**2 -(y-Bmy/(b*Bs))**2)
+            B = B0 + Ba*np.exp(-((x-Bmx)/Bs)**2 -((y-Bmy)/(b*Bs))**2)
             speed = g_a*(H0 - B)
             return speed
 
@@ -130,4 +131,4 @@ if do == 'plotwaves':
     I = lambda x,y: I0 +  Ia*np.exp(-((x-Bmx)/Bs)**2)
 
     solver = Wave_2D_solver(g,Lx,Ly,Nx,Ny,T,dt,'plot')       # Initialize and create instance
-    u, t = solver.solve(I,b,f,V)                             # Solve the equation
+    u, t = solver.solve(I,b_drag,f,V)                             # Solve the equation

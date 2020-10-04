@@ -3,7 +3,7 @@ import numpy as np
 
 # H0 and z is height of stillwater
 # B is how high the ground level is
-# g er hastighet
+# g is speed
 
 def g_floor(opt,x,y, Lx, Ly): # must be a n,n mesh Only make this once for each plot to save time
     """
@@ -36,4 +36,3 @@ def g_floor(opt,x,y, Lx, Ly): # must be a n,n mesh Only make this once for each 
     return z,B,g_a*(H0-B)
 
 # gravitational constant m/s^2
-## Calculate velocities at each point

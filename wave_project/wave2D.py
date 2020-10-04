@@ -102,7 +102,8 @@ class Wave_2D_solver():
                     g_ux_x = self.g_ux_x; gy_u_y = self.gy_u_y
 
                     self.u[i,j] = 1/4*(4*self.u_n[i,j] - 2*self.dt*V(x[ix],y[jy])*(b*self.dt-2) \
-                            + (2*self.dt**2)*(g_ux_x + gy_u_y + f(x[ix],y[jy],t[n])))
+                           + (2*self.dt**2)*(g_ux_x + gy_u_y + f(x[ix],y[jy],t[n])))
+
         # All other times steps
         else:
             for i in Ix:
@@ -163,7 +164,7 @@ class Wave_2D_solver():
                 self.residual = np.subtract(self.u_e(self.x,self.y,self.t[self.n]),self.u[1:-1,1:-1])
                 self.error = max(self.error,np.abs(self.residual.max()))
 
-                plot_u(self.u[1:-1], self.x,self.y, self.t,n,fig, save_plot = True)
+                plot_u(self.u[1:-1], self.x,self.y, self.t,n,fig, save_plot = False)
                 self.u_nn, self.u_n, self.u = self.u_n, self.u, self.u_nn  # Update time vectors
 
         else:
@@ -174,7 +175,7 @@ class Wave_2D_solver():
                 self.residual = np.subtract(self.u_e(self.x,self.y,self.t[self.n]),self.u[1:-1,1:-1])
                 self.error = max(self.error,np.abs(self.residual.max()))
 
-                plot_u(self.u[1:-1], self.x,self.y, self.t,n,fig, save_plot = True)
+                plot_u(self.u[1:-1], self.x,self.y, self.t,n,fig, save_plot = False)
                 self.u_nn, self.u_n, self.u = self.u_n, self.u, self.u_nn  # Update time vectors
         return self.u[1:-1,1:-1], self.t
 
@@ -241,7 +242,7 @@ class Wave_2D_solver():
         # print stability criteria
         print("stability criteria")
 
-        print('dt:',self.dt,'dx:',self.dx,'dy',self.dy,'dt less than',1/c_max*np.sqrt(1/self.dx**2 + 1/self.dy**2))
+        print('dt:',self.dt,'dx:',self.dx,'dy',self.dy,'dt less than',1/c_max*1/(np.sqrt(1/self.dx**2 + 1/self.dy**2)))
 
         # Initialize vectors (2 dimensional mesh [i,j]) using ghost cells i = -1,0 ... Nx+1 and so on
         self.u_nn = np.zeros((self.Nx+3,self.Ny+3))           # time n-1, so that t -dt
