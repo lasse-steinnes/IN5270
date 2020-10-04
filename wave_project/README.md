@@ -24,4 +24,4 @@ Git for project 1 in IN5270 - Numerical Methods for Partial Differential Equatio
   9. intialize convergence: sets up initial conditions for each experiment used in test_convergence_rate
 - [vizualize.py](https://github.com/lasse-steinnes/IN5270/blob/master/wave_project/visualize.py) : Visualizes the numerical solution in 3D for a given time step.
 - [seabed.py](https://github.com/lasse-steinnes/IN5270/blob/master/wave_project/seabed.py) : Explores the different subsea surfaces and the wave velocity they produce.
-- [test_funcs.py](https://github.com/lasse-steinnes/IN5270/blob/master/wave_project/test_funcs.py) : Verify the implementation for a constant solutino which has exact numerical solution at mesh points.
+- [test_funcs.py](https://github.com/lasse-steinnes/IN5270/blob/master/wave_project/test_funcs.py) : Verify the implementation for a constant solution which has exact numerical solution at mesh points.
