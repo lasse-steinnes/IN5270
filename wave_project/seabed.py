@@ -7,7 +7,7 @@ import numpy as np
 
 def g_floor(opt,x,y, Lx, Ly): # must be a n,n mesh Only make this once for each plot to save time
     """
-    Calculates the shape of sea
+    Calculates the shape of seabed
     """
     B0 = 1; Ba = B0*2; Bs = Lx*0.3; Bmx = 0.5*Lx; Bmy = 0.5*Ly; b = 1.1;
     H0 = 3*B0; I0 = 0; Ia = 6*B0; g_a = 9.81;

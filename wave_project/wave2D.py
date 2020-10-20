@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from visualize import plot_u
+from visualize import plot_u 
 
 class Wave_2D_solver():
     """
