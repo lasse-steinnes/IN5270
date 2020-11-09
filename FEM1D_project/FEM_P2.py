@@ -9,6 +9,11 @@ class FEM_P2_solver():
     P2 elements.
     """
     def __init__(self,C,D,Ne):
+        """
+        Initiates the solver
+        - Input:
+            C (float), D (float) and Ne (int)
+        """
         self.C = C          # Neumann condition
         self.D = D          # Dirichlet condition
         self.Ne = Ne        # Number of elements, each with three nodes.
@@ -34,11 +39,10 @@ class FEM_P2_solver():
         # Set up element
         self.elements = [[i*self.oth,i*self.oth+1,i*self.oth+2] for i in range(self.Ne)]
         self.local_nodes = len(self.elements[0])
+
         # Set up final matrix A, numerical solution u and right hand side b
         self.A = np.zeros((self.n_nodes,self.n_nodes))
         self.b = np.zeros(self.n_nodes);
-        #print(self.A)#print(self.nodes_m)#print(self.h) #print(elements)
-        #print(self.nodes_m)
 
     def setup_element_matrix(self):
         """
@@ -52,8 +56,8 @@ class FEM_P2_solver():
         self.A_e[1,0] = self.A_e[0,1] = -8
         self.A_e[oth,0] = self.A_e[0,oth] = 1
 
-        self.A_e = 1/(3*h)*self.A_e     # The final A matrix check
-                                   # if constant can be factored out in the end
+        self.A_e = 1/(3*h)*self.A_e
+
     def setup_element_matrixN(self):
         """
         Set up special element matrix to enforce Dirichlet condition
@@ -72,13 +76,11 @@ class FEM_P2_solver():
 
         self.A_n = 1/(3*h)*self.A_n
 
-
-
     def evaluate_num(self,x):
         """
         Evaluates the numerical solution at mesh points
         """
-        ## Decide what local node a globale node lies within with use of modulo
+        ## Could decide what local node a globale node lies within with use of modulo
         ## but here is the easier way, but maybe less efficient way chosen
         ## Set up basis functions
         self.psi = lambda x,a,b,c: (x-b)/(a-b)*(x-c)/(a-c);
@@ -87,9 +89,6 @@ class FEM_P2_solver():
         j = 0; i = 0
         while j <= len(self.nodes)-1:
             while i < len(x) and x[i] <= self.nodes[j+2]:
-                #print('j:',j)
-                #print('xi:',x[i])
-                #print('node:',self.nodes[j+2])
                 self.u[i] = self.c[j]*self.psi(x[i],self.nodes[j],self.nodes[j+1],self.nodes[j+2]) + \
                 self.c[j+1]*self.psi(x[i],self.nodes[j+1],self.nodes[j],self.nodes[j+2]) + \
                 self.c[j+2]*self.psi(x[i],self.nodes[j+2],self.nodes[j],self.nodes[j+1])
@@ -142,10 +141,12 @@ class FEM_P2_solver():
         # Alter last index right hand side
         r = local_nodes-1
         self.b[self.elements[e][r]] = self.D
-        #print(self.b[self.elements[e][r]])
 
 
     def find_b_ref(self):
+         """
+         find the b's on the reference element
+         """
          x, x_m, h, X = sp.symbols('x x_m h X')         # make symbols
          x = x_m + h/2*X                                # Apply transformation
          wrt = (X, -1, 1)                               # Interval and variable
@@ -172,6 +173,9 @@ class FEM_P2_solver():
             self.c = np.linalg.solve(self.A,self.b)
 
     def get_numerical_solution(self,x):
+        """
+        Solves the system with output numerical solution
+        """
         self.x = x;
         self.assemble()
         self.solve_linear()
@@ -186,7 +190,7 @@ class FEM_P2_solver():
     def L2_norm(self):
         """
         Calculate the L2-norm by approximating the integral as a sum
-        """                          # Interval and variable
+        """
         L2 = np.sqrt(self.h*sum((self.exact(self.x)-self.u)**2))
         return L2, self.h
 
@@ -196,7 +200,7 @@ class FEM_P2_solver():
         """
         plt.plot(self.x,self.exact(self.x),'-',label = "analytical")
         plt.plot(self.x,self.u,'--', label = "numerical")
-        plt.title("$N_e$:{:d}, C: {:0.2e}, D: {:.2e}".format(self.Ne,self.C,self.D))
+        plt.title("$N_e$:{:d}, C: {:0.2e}, D: {:.2e}".format(self.Ne,self.C,self.D),fontsize = 14)
         plt.xlabel("x",fontsize = 13)
         plt.ylabel("u",fontsize = 13)
         plt.legend(loc = "upper left",fontsize = 15)
