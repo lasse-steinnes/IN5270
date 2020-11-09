@@ -56,3 +56,30 @@ elif int(arg) == 2:
 
     for i in range(1,N):
         print("{:.4e}   {:.4e}  {:.4e}".format(h_mesh[i],l2_mesh[i],r[i-1]))
+
+"""
+Example Results of convergence test with
+(C:0, D:0.5, 5 elements 7 experiments)
+h            l2-norm     convergence rate
+2.0000e-01   4.1146e-03  ---------
+5.0000e-02   3.2145e-05  3.5000e+00
+1.2500e-02   2.5113e-07  3.5000e+00
+3.1250e-03   1.9620e-09  3.5000e+00
+7.8125e-04   1.5341e-11  3.4994e+00
+1.9531e-04   1.3040e-12  1.7782e+00
+4.8828e-05   2.5992e-12  -4.9759e-01
+"""
+
+"""
+Example Results of convergence test with
+(C:1, D:8, 5 elements 7 experiments)
+h            l2-norm     convergence rate
+2.0000e-01   4.1146e-03  ---------
+5.0000e-02   3.2145e-05  3.5000e+00
+1.2500e-02   2.5113e-07  3.5000e+00
+3.1250e-03   1.9620e-09  3.5000e+00
+7.8125e-04   2.0562e-11  3.2881e+00
+1.9531e-04   2.7406e-11  -2.0725e-01
+4.8828e-05   5.4588e-11  -4.9705e-01
+
+"""
