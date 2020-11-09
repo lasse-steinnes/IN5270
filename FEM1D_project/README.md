@@ -8,7 +8,7 @@ Git for Project 2 in Numerical methods for partial differential equations (IN527
 
 * Another central task was to compute the L2-norm of the error, and find the converge rate.
 
-* Figures can be found in the folder figures.
+* Example results can be found in the folder figures.
 
 ### Code: Link and description of programmes
 - [main.py](https://github.com/lasse-steinnes/IN5270/blob/master/FEM1D_project/main.py) : Runs the methods provided by the class FEM_P2_solver.
@@ -27,7 +27,9 @@ Git for Project 2 in Numerical methods for partial differential equations (IN527
   10. l2-norm: Calculates the l2 norm of e = u_e - u_num
   11. plot: Plots the numerical and analytical solution in the same figure
 
-How to run the programmes to reproduce the results discussed in the article: The menu gives input options for C, D, number of elements to use (Ne) and if you want to plot or calculate the convergence rates. To calculate convergence rates, a number of experiments must be provided. For each experiment Ne = 4*Ne and h = 1/N_e. To reproduce the convergence rates described in the paper, use [C:1, D:8, 5 elements 7 experiments] and  [C:0, D:0.5, 5 elements 7 experiments].
+How to run the programmes to reproduce the results discussed in the article: The menu gives input options for C, D, number of elements to use (Ne) and if you want to plot or calculate the convergence rates. 
+
+To calculate convergence rates, a number of experiments must be provided. For each experiment Ne = 4*Ne and h = 1/N_e. To reproduce the convergence rates described in the paper, use [C:1, D:8, 5 elements 7 experiments] and  [C:0, D:0.5, 5 elements 7 experiments].
 
 ### Links and packages
   - Documentation for numpy [here](https://numpy.org/doc/)
