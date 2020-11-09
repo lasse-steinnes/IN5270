@@ -50,7 +50,6 @@ elif int(arg) == 2:
     r = np.zeros(N)
     r = [np.log(l2_mesh[i]/l2_mesh[i-1])/np.log(h_mesh[i]/h_mesh[i-1]) \
     for i in range(1,N)]
-    print(r)
     # print out table
     print('h            l2-norm     convergence rate')
     print("{:.4e}   {:.4e}  ---------".format(h_mesh[0],l2_mesh[0],))

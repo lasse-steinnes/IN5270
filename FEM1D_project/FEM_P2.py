@@ -196,11 +196,12 @@ class FEM_P2_solver():
         """
         plt.plot(self.x,self.exact(self.x),'-',label = "analytical")
         plt.plot(self.x,self.u,'--', label = "numerical")
-        plt.title("Finite Element Method")
+        plt.title("$N_e$:{:d}, C: {:0.2e}, D: {:.2e}".format(self.Ne,self.C,self.D))
         plt.xlabel("x",fontsize = 13)
         plt.ylabel("u",fontsize = 13)
         plt.legend(loc = "upper left",fontsize = 15)
         plt.xticks(fontsize=14)
         plt.yticks(fontsize=14)
         plt.tight_layout()
+        plt.savefig("./figures/FEM_elements{:d}_C{:0.2f}_D{:0.2f}.png".format(self.Ne,self.C,self.D))
         plt.show()
