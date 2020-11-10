@@ -36,3 +36,18 @@ To calculate convergence rates, a number of experiments must be provided. For ea
   - Documentation for matplotlib [here](https://matplotlib.org/)
   - Documentation for sympy [here](https://docs.sympy.org/latest/index.html)
   - Documentation for pentapy [here](https://geostat-framework.readthedocs.io/projects/pentapy/en/stable/)
+  
+
+###  FEEDBACK and necessary fixes:
+You have written a very good report, showing that you have grasped the mathematical and numerical details related to the finite element method when solving a 1D Poisson equation. The handling of the Neumann and Dirichlet conditions is also correct. (My only comment in this regard concerns page 5, right above formula (35), "the extended matrix" is an unusual notation.) The use of the standardized reference element is excellent. Your implementation seems to be (mostly) correct because you have achieved convergence with you numerical solutions.
+
+However, your achieved convergence rate (3.5) is better than expected, thus a "mystery". The possible reasons are listed below:
+1. You have used a fixed array of sampling points, specifically,
+x = np.linspace(0,1, 10000)
+which is independent of the number of elements actually used. This MAY lead to insufficient accuracy of the numerical integration (essentially used in the L2_norm function) when the number of cells is really large. By the way, there is no need to increase the number of cells by a factor of 4 every time. (An increase factor of 2 is standard.)
+2. The L2_norm function is incorrect in the sense that you multiply with "self.h", which is mathematically correct (if you had sampled a fixed number of points per element), but it does NOT match with your actual fixed sampling rate (always 10000 points over the entire domain no matter the actual number of elements used).
+3. The function "evaluate_num" may require a closer look. I must confess that I find the current implementation somewhat unusual, but cannot quite pinpoint any bug (if at all).
+
+Your project is approved, although the convergence rate achieved is too good (better than what the theory expects).
+- Xing Cai
+  
